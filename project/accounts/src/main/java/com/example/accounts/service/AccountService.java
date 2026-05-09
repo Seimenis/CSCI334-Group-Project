@@ -1,6 +1,5 @@
 package com.example.accounts.service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +15,6 @@ import com.example.accounts.dto.response.AuthResponse;
 import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
-import com.example.accounts.util.Role;
 
 @Service
 public class AccountService {
@@ -49,27 +47,15 @@ public class AccountService {
         }
 
         // Create and save the new account
-        Account account = new Account();
-        account.setUsername(registerRequest.getUsername());
-        account.setEmail(registerRequest.getEmail());
-        account.setCreatedAt(LocalDateTime.now());
-        account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        account.setRole(Role.USER);
-        Account savedAccount = accountRepository.save(account);
+        Account account = new Account(registerRequest);
+        account = accountRepository.save(account);
 
-        
         // Publish kafka event
-        AccountCreatedEvent event = new AccountCreatedEvent(savedAccount.getId(), savedAccount.getEmail(), savedAccount.getUsername());
+        AccountCreatedEvent event = new AccountCreatedEvent(account);
         accountEventProducer.publishAccountCreatedEvent(event);
 
         // Return the response
-        return new RegisterResponse(
-            savedAccount.getId(),
-            savedAccount.getUsername(),
-            savedAccount.getEmail(),
-            savedAccount.getCreatedAt(),
-            "Account created successfully"
-        );
+        return new RegisterResponse(account, "Account created successfully");
     }
 
     public AuthResponse authenticate(LoginRequest loginRequest) {
@@ -93,7 +79,7 @@ public class AccountService {
         );
 
         if (!matches) {
-            LoginFailedEvent event = new LoginFailedEvent(loginRequest.getEmail(), "Invalid password");
+            LoginFailedEvent event = new LoginFailedEvent(account, "Invalid password");
 
             accountEventProducer.publishLoginFailedEvent(event);
             throw new IllegalArgumentException("Invalid email or password");
@@ -111,22 +97,10 @@ public class AccountService {
         accountEventProducer.publishTokenIssuedEvent(tokenEvent);
 
         // Publish login success event
-
-        LoginSucceededEvent loginEvent = new LoginSucceededEvent(
-            account.getId(),
-            account.getEmail(),
-            account.getUsername()
-        );
-
+        LoginSucceededEvent loginEvent = new LoginSucceededEvent(account);
         accountEventProducer.publishLoginSucceededEvent(loginEvent);
 
         // Return response
-        return new AuthResponse(
-            account.getId(),
-            account.getUsername(),
-            account.getEmail(),
-            account.getRole(),
-            token
-        );
+        return new AuthResponse(account, token);
     }
 }

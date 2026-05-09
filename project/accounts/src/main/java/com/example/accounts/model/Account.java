@@ -2,6 +2,7 @@ package com.example.accounts.model;
 
 import java.time.LocalDateTime;
 
+import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.util.Role;
 
 import jakarta.persistence.Entity;
@@ -31,6 +32,15 @@ public class Account {
         this.createdAt = createdAt;
     }
 
+    public Account(RegisterRequest request) {
+        this.username = request.getUsername();
+        this.email = request.getEmail();
+        this.password = request.getPassword();
+        this.role = Role.USER;
+        this.enabled = true;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -51,7 +61,7 @@ public class Account {
         return role;
     }
 
-    public Boolean getEnabled() {
+    public Boolean isEnabled() {
         return enabled;
     }
 

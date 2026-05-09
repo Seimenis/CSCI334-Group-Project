@@ -2,6 +2,8 @@ package com.example.accounts.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.example.accounts.model.Account;
+
 public class RegisterResponse {
     private Long id;
     private String username;
@@ -16,6 +18,16 @@ public class RegisterResponse {
         this.username = username;
         this.email = email;
         this.message = message;
+    }
+
+    public RegisterResponse(Account account, String message) {
+        this(
+            account.getId(),
+            account.getUsername(),
+            account.getEmail(),
+            account.getCreatedAt(),
+            message
+        );
     }
 
     public String getUsername() {

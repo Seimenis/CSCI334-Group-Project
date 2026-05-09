@@ -2,12 +2,10 @@ package com.example.accounts.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.accounts.dto.request.LoginRequest;
-import com.example.accounts.dto.request.RegisterRequest;
-import com.example.accounts.dto.response.AuthResponse;
-import com.example.accounts.dto.response.RegisterResponse;
+import com.example.accounts.dto.event.AccountDeletedEvent;
+import com.example.accounts.dto.response.AccountResponse;
+import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
-import com.example.accounts.util.Role;
 
 
 @Service
@@ -15,34 +13,39 @@ public class AccountAdminService {
 
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final AccountProducerService accountProducerService;
 
     public AccountAdminService(
         AccountService accountService, 
-        AccountRepository accountRepository) {
+        AccountRepository accountRepository,
+        AccountProducerService accountProducerService) {
 
         this.accountService = accountService;
         this.accountRepository = accountRepository;
+        this.accountProducerService = accountProducerService;
     }
 
-    public RegisterResponse registerStaff(RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest);
+    // Delete
 
-        accountRepository.findByEmail(registerRequest.getEmail()).ifPresent(account -> {
-            account.setRole(Role.STAFF);
-            accountRepository.save(account);
+    public void deleteAccount(Long accountId) {
+        accountRepository.deleteById(accountId);
+        accountProducerService.publishAccountDeletedEvent(new AccountDeletedEvent(accountId));
+    }
+
+    public void deleteAccountByEmail(String email) {
+        accountRepository.findByEmail(email).ifPresent(account -> {
+            accountRepository.delete(account);
+            accountProducerService.publishAccountDeletedEvent(new AccountDeletedEvent(account.getId()));
         });
-
-        return registerResponse;
     }
 
-    public AuthResponse authenticateAdmin(LoginRequest loginRequest) {
-        AuthResponse authResponse = accountService.authenticate(loginRequest);
+    // Read
 
-        // Additional checks for admin role can be added here if needed
-
-        return authResponse;
+    public AccountResponse getAccountById(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+        
+        return new AccountResponse(account);
     }
-
-    // add enable user, disable user, delete user, etc. admin functions here
 
 }

@@ -1,5 +1,7 @@
 package com.example.accounts.dto.event;
 
+import com.example.accounts.model.Account;
+
 public class AccountCreatedEvent {
     private final EventMetadata metadata = new EventMetadata();
     private Long accountId;
@@ -12,6 +14,14 @@ public class AccountCreatedEvent {
         this.accountId = accountId;
         this.email = email;
         this.username = username;
+    }
+
+    public AccountCreatedEvent(Account account) {
+        this(
+            account.getId(),
+            account.getEmail(),
+            account.getUsername()
+        );
     }
 
     public Long getAccountId() {

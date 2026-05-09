@@ -2,9 +2,10 @@ package com.example.accounts.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.accounts.dto.request.LoginRequest;
-import com.example.accounts.dto.response.AuthResponse;
+import com.example.accounts.dto.request.RegisterRequest;
+import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.repository.AccountRepository;
+import com.example.accounts.util.Role;
 
 @Service
 public class AccountStaffService {
@@ -19,12 +20,16 @@ public class AccountStaffService {
         this.accountService = accountService;
     }
 
-    public AuthResponse authenticateStaff(LoginRequest loginRequest) {
-        AuthResponse authResponse = accountService.authenticate(loginRequest);
+    public RegisterResponse registerStaff(RegisterRequest registerRequest) {
+        RegisterResponse registerResponse = accountService.register(registerRequest);
 
-        // Additional checks for staff role can be added here if needed
+        accountRepository.findByEmail(registerRequest.getEmail()).ifPresent(account -> {
+            account.setRole(Role.STAFF);
+            accountRepository.save(account);
+        });
 
-        return authResponse;
+        // Additional logic to set staff role can be added here if needed
 
+        return registerResponse;
     }
 }
