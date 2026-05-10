@@ -9,5 +9,4 @@ class SpotterApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
