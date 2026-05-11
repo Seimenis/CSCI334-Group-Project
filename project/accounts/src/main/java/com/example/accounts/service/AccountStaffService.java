@@ -1,35 +1,32 @@
 package com.example.accounts.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import com.example.accounts.dto.request.RegisterRequest;
-import com.example.accounts.dto.response.RegisterResponse;
+import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.repository.AccountRepository;
+import com.example.accounts.util.DateRange;
 import com.example.accounts.util.Role;
 
 @Service
 public class AccountStaffService {
     private final AccountRepository accountRepository;
-    private final AccountService accountService;
 
-    public AccountStaffService(
-        AccountRepository accountRepository, 
-        AccountService accountService) {
-
+    public AccountStaffService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.accountService = accountService;
     }
 
-    public RegisterResponse registerStaff(RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest);
+    // Read
+    
+    public List<AccountResponse> getAccounts(boolean enabled, Role role, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime[] dateRange = DateRange.resolveRange(startDate, endDate);
 
-        accountRepository.findByEmail(registerRequest.getEmail()).ifPresent(account -> {
-            account.setRole(Role.STAFF);
-            accountRepository.save(account);
-        });
-
-        // Additional logic to set staff role can be added here if needed
-
-        return registerResponse;
+        return accountRepository.findByEnabledAndRoleAndCreatedAtBetween(enabled, role, dateRange[0], dateRange[1])
+            .stream()
+            .map(AccountResponse::new)
+            .toList();
     }
 }

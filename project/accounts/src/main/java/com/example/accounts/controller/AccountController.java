@@ -23,6 +23,8 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    // Creating account (registration) and authentication (login)
+
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
         RegisterResponse registerResponse = accountService.register(registerRequest);

@@ -15,6 +15,7 @@ import com.example.accounts.dto.response.AuthResponse;
 import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
+import com.example.accounts.util.Role;
 
 @Service
 public class AccountService {
@@ -36,7 +37,13 @@ public class AccountService {
         this.jwtService = jwtService;
     }
 
+    // Create
+
     public RegisterResponse register(RegisterRequest registerRequest) {
+        return register(registerRequest, Role.USER);
+    }
+
+    public RegisterResponse register(RegisterRequest registerRequest, Role role) {
 
         // Check if email or username already exists
         if (accountRepository.existsByEmail(registerRequest.getEmail())) {
@@ -48,6 +55,7 @@ public class AccountService {
 
         // Create and save the new account
         Account account = new Account(registerRequest);
+        account.setRole(role);
         account = accountRepository.save(account);
 
         // Publish kafka event
@@ -57,6 +65,8 @@ public class AccountService {
         // Return the response
         return new RegisterResponse(account, "Account created successfully");
     }
+
+    // Authenticate (Login)
 
     public AuthResponse authenticate(LoginRequest loginRequest) {
 
@@ -103,4 +113,8 @@ public class AccountService {
         // Return response
         return new AuthResponse(account, token);
     }
+
+    // Read
+
+    
 }

@@ -1,20 +1,22 @@
 package com.example.accounts.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.accounts.dto.request.RegisterRequest;
-import com.example.accounts.dto.response.RegisterResponse;
+import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.service.AccountStaffService;
+import com.example.accounts.util.Role;
 
 
 @RestController
-@RequestMapping("/staff")
+@RequestMapping("/staff/accounts")
+@PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
 public class AccountStaffController {
     
     private final AccountStaffService accountStaffService;
@@ -23,11 +25,15 @@ public class AccountStaffController {
         this.accountStaffService = accountStaffService;
     }
 
-    @PostMapping("/register")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RegisterResponse> registerStaff(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountStaffService.registerStaff(registerRequest);
-        return new ResponseEntity<>(registerResponse, HttpStatus.NOT_IMPLEMENTED);
-    }
+    @GetMapping()
+    public List<AccountResponse> getAccounts(
+        @RequestParam(required = false) boolean enabled,
+        @RequestParam(required = false) Role role,
+        @RequestParam(required = false) LocalDate startDate,
+        @RequestParam(required = false) LocalDate endDate
+    ) {
 
+        return accountStaffService.getAccounts(enabled, role, startDate, endDate);
+    }
+    
 }
