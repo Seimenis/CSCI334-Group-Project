@@ -2,13 +2,13 @@ package com.example.accounts.model;
 
 import java.time.LocalDateTime;
 
-import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.util.Role;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 
 @Entity
 public class Account {
@@ -23,25 +23,21 @@ public class Account {
     private Boolean enabled;
     private LocalDateTime createdAt;
 
+    @PrePersist
+    public void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
+
     public Account() {}
 
-    public Account(Long id, String username, String email, String password, Role role, Boolean enabled, LocalDateTime createdAt) {
-        this.id = id;
+    public Account(String username, String email, String password, Role role, Boolean enabled) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
         this.enabled = enabled;
-        this.createdAt = createdAt;
-    }
-
-    public Account(RegisterRequest request) {
-        this.username = request.getUsername();
-        this.email = request.getEmail();
-        this.password = request.getPassword();
-        this.role = Role.USER;
-        this.enabled = true;
-        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {

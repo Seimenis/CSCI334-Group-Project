@@ -2,15 +2,16 @@ package com.example.accounts.bootstrap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.service.AccountAdminService;
-import com.example.accounts.util.Role;
 
+@Component
 public class AdminSeeder implements CommandLineRunner {
 
-    @Value("{admin.username}")
+    @Value("${admin.username}")
     private String adminUsername;
 
     @Value("${admin.email}")
@@ -32,7 +33,7 @@ public class AdminSeeder implements CommandLineRunner {
     public void run(String... args) {
 
         // Create admin if he doesn't exist
-        if (!accountRepository.existsByRole(Role.ADMIN)) {
+        if (!accountRepository.existsByEmail(adminEmail)) {
             RegisterRequest adminAccount = new RegisterRequest(adminUsername, adminEmail, adminPassword);
             accountAdminService.registerAdmin(adminAccount);
         }

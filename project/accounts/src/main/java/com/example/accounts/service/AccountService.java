@@ -8,11 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.accounts.dto.event.AccountCreatedEvent;
+import com.example.accounts.dto.event.AccountUpdatedEvent;
 import com.example.accounts.dto.event.LoginFailedEvent;
 import com.example.accounts.dto.event.LoginSucceededEvent;
 import com.example.accounts.dto.event.TokenIssuedEvent;
 import com.example.accounts.dto.request.LoginRequest;
 import com.example.accounts.dto.request.RegisterRequest;
+import com.example.accounts.dto.request.UpdateRequest;
+import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.dto.response.AuthResponse;
 import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
@@ -57,8 +60,12 @@ public class AccountService {
         }
 
         // Create and save the new account
-        Account account = new Account(registerRequest);
+        Account account = new Account();
+        account.setUsername(registerRequest.getUsername());
+        account.setEmail(registerRequest.getEmail());
+        account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         account.setRole(role);
+        account.setEnabled(true);
         account = accountRepository.save(account);
 
         // Publish kafka event
@@ -119,5 +126,33 @@ public class AccountService {
 
     // Read
 
+    public AccountResponse getAccount(String email) {
+        Account account = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        return new AccountResponse(account);
+    }
+
+
+    // Update
+    public void update(UpdateRequest updateRequest, String email) {
+        Account account = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if (updateRequest.getUsername() != null)
+            account.setUsername(updateRequest.getUsername());
+
+        if (updateRequest.getEmail() != null)
+            account.setEmail(updateRequest.getEmail());
+
+        if (updateRequest.getPassword() != null)
+            account.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+
+        accountRepository.save(account);
+
+        // Publish kafka event
+        AccountUpdatedEvent event = new AccountUpdatedEvent(account);
+        accountEventProducer.publishAccountUpdatedEvent(event);
+    }
     
 }

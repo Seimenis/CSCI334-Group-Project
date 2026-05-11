@@ -18,6 +18,7 @@ public class RegisterResponse {
         this.username = username;
         this.email = email;
         this.message = message;
+        this.createdAt = createdAt;
     }
 
     public RegisterResponse(Account account, String message) {

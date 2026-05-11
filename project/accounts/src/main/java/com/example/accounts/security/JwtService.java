@@ -14,6 +14,7 @@ import com.example.accounts.model.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Service
@@ -26,7 +27,7 @@ public class JwtService {
     private long expiration;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
     private Claims extractClaims(String token) {

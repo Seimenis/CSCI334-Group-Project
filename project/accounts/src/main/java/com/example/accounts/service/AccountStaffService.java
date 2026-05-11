@@ -4,10 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.accounts.dto.response.AccountResponse;
+import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
+import com.example.accounts.specification.AccountSpecification;
 import com.example.accounts.util.DateRange;
 import com.example.accounts.util.Role;
 
@@ -21,10 +24,15 @@ public class AccountStaffService {
 
     // Read
     
-    public List<AccountResponse> getAccounts(boolean enabled, Role role, LocalDate startDate, LocalDate endDate) {
+    public List<AccountResponse> getAccounts(Boolean enabled, Role role, LocalDate startDate, LocalDate endDate) {
         LocalDateTime[] dateRange = DateRange.resolveRange(startDate, endDate);
 
-        return accountRepository.findByEnabledAndRoleAndCreatedAtBetween(enabled, role, dateRange[0], dateRange[1])
+        Specification<Account> specification =
+            Specification.where(AccountSpecification.enabled(enabled))
+                         .and(AccountSpecification.role(role))
+                         .and(AccountSpecification.createdBetween(dateRange[0], dateRange[1]));
+
+        return accountRepository.findAll(specification)
             .stream()
             .map(AccountResponse::new)
             .toList();
