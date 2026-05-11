@@ -1,0 +1,41 @@
+package com.example.accounts.bootstrap;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+
+import com.example.accounts.dto.request.RegisterRequest;
+import com.example.accounts.repository.AccountRepository;
+import com.example.accounts.service.AccountAdminService;
+import com.example.accounts.util.Role;
+
+public class AdminSeeder implements CommandLineRunner {
+
+    @Value("{admin.username}")
+    private String adminUsername;
+
+    @Value("${admin.email}")
+    private String adminEmail;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
+    
+    private final AccountRepository accountRepository;
+    private final AccountAdminService accountAdminService;
+
+    public AdminSeeder(AccountRepository accountRepository, AccountAdminService accountAdminService) {
+        this.accountRepository = accountRepository;
+        this.accountAdminService = accountAdminService;
+    }
+
+    @Override
+    public void run(String... args) {
+
+        // Create admin if he doesn't exist
+        if (!accountRepository.existsByRole(Role.ADMIN)) {
+            RegisterRequest adminAccount = new RegisterRequest(adminUsername, adminEmail, adminPassword);
+            accountAdminService.registerAdmin(adminAccount);
+        }
+    }
+
+}

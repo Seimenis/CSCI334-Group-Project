@@ -2,8 +2,10 @@ package com.example.accounts.service;
 
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.accounts.dto.event.AccountCreatedEvent;
 import com.example.accounts.dto.event.LoginFailedEvent;
@@ -15,6 +17,7 @@ import com.example.accounts.dto.response.AuthResponse;
 import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
+import com.example.accounts.security.JwtService;
 import com.example.accounts.util.Role;
 
 @Service
@@ -23,13 +26,13 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountProducerService accountEventProducer;
     private final PasswordEncoder passwordEncoder;
-    private final JWTService jwtService;
+    private final JwtService jwtService;
 
     public AccountService(
         AccountRepository accountRepository,
         AccountProducerService accountEventProducer,
         PasswordEncoder passwordEncoder,
-        JWTService jwtService) {
+        JwtService jwtService) {
 
         this.accountRepository = accountRepository;
         this.accountEventProducer = accountEventProducer;
@@ -77,7 +80,7 @@ public class AccountService {
             LoginFailedEvent event = new LoginFailedEvent(loginRequest.getEmail(), "No account found with email: " + loginRequest.getEmail());
 
             accountEventProducer.publishLoginFailedEvent(event);
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
         Account account = optionalAccount.get();
@@ -92,7 +95,7 @@ public class AccountService {
             LoginFailedEvent event = new LoginFailedEvent(account, "Invalid password");
 
             accountEventProducer.publishLoginFailedEvent(event);
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
         // Generate JWT token

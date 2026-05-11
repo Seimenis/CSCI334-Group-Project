@@ -1,9 +1,12 @@
-package com.example.accounts.service;
+package com.example.accounts.security;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.example.accounts.model.Account;
@@ -14,7 +17,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 @Service
-public class JWTService {
+public class JwtService {
     
     @Value("${jwt.secret}")
     private String secret;
@@ -67,6 +70,16 @@ public class JWTService {
 
     public long extractExpiration(String token) {
         return extractClaims(token).getExpiration().getTime();
+    }
+
+    public boolean isTokenValid(String token) {
+        Claims claims = extractClaims(token);
+        return claims.getExpiration().after(new Date());
+    }
+
+    public List<GrantedAuthority> extractAuthority(String token) {
+        String role = extractRole(token);
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     public boolean validateToken(String token, Account account) {

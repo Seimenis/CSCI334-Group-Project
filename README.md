@@ -1,8 +1,20 @@
 # UOW Parking Lot System
 The UOW Parking Lot System is a Smart Lot, equipped with parking space sensors, availability forecasting and a Traffic Prediction Model.
 
-For demo purposes, a default JWT secret is provided.
 
-For production, set:
+## Accounts Microservice
 
-export JWT_SECRET=your-secure-key
+### Environment variables
+
+For demo purposes, default values for environment variables have been provided.
+
+For production, make sure to set:
+
+JWT_SECRET
+JWT_EXPIRATION
+
+ADMIN_EMAIL
+ADMIN_PASSWORD
+ADMIN_USERNAME
+
+KAFKA_SERVER
