@@ -163,49 +163,4 @@ Deleting accounts
 ```
 curl -X DELETE "http://localhost:8080/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
 ```
-
-# Spotter Microservice
-
-The Spotter service manages UOW parking space detection and simulation data. It loads an initial parking-space dataset from `project/spotter/src/main/resources/data/uow-parking-spaces.csv` and replays simulated sensor updates from `project/spotter/src/main/resources/data/uow-spotter-feed.csv`.
-
-By default it runs on port `8085` and publishes JSON Kafka events to:
-
-```
-spotter.created
-spotter.updated
-```
-
-For local testing without Kafka running:
-
-```
-cd project/spotter
-mvn spring-boot:run -Dspring-boot.run.arguments=--spotter.kafka.enabled=false
-```
-
-Useful Spotter commands:
-
-```
-curl -G "http://localhost:8085/spotter/health"
-
-curl -G "http://localhost:8085/spotter/spaces"
-
-curl -G "http://localhost:8085/spotter/summary"
-
-curl -X POST "http://localhost:8085/spotter/simulation/run" \
--H "Content-Type: application/json" \
--d '{
-  "eventCount": 5,
-  "publishEvents": false
-}'
-
-curl -X POST "http://localhost:8085/spotter/sensors/UOW-P1-A-001/detect" \
--H "Content-Type: application/json" \
--d '{
-  "occupied": true,
-  "confidence": 0.98,
-  "source": "manual-demo"
-}'
-
-curl -G "http://localhost:8085/spotter/events"
-```
   
