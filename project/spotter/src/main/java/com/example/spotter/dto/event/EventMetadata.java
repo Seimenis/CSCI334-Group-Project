@@ -6,7 +6,7 @@ import java.util.UUID;
 public class EventMetadata {
     private final String eventId = UUID.randomUUID().toString();
     private final Instant timestamp = Instant.now();
-    private final String serviceName = "accounts-service";
+    private final String serviceName = "spotter-service";
 
     public EventMetadata() {}
 
