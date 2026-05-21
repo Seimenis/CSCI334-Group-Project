@@ -73,6 +73,7 @@
 	<modules>
     	<module>accounts</module>
 		<module>spotter</module>
+		<module>adminstats</module>
 	</modules>
 
 </project>
