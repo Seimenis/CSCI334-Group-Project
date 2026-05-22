@@ -163,4 +163,85 @@ Deleting accounts
 ```
 curl -X DELETE "http://localhost:8080/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
 ```
+
+# Spotter Microservice
+
+The Spotter service provides UOW parking space detection, seeded parking data, and a repeatable sensor simulation feed for frontend and analytics work.
+
+It runs on port `8085` and loads its datasets from inside the service:
+
+```
+project/spotter/src/main/resources/data/uow-parking-spaces.csv
+project/spotter/src/main/resources/data/uow-spotter-feed.csv
+```
+
+The service publishes JSON Kafka events when spaces are created or updated:
+
+```
+spotter.created
+spotter.updated
+```
+
+For frontend-only development without Kafka running, start Spotter with `SPOTTER_KAFKA_ENABLED=false`.
+
+## Spotter commands
+
+Run only the Spotter service:
+
+```
+cd project
+mvn -pl spotter spring-boot:run
+```
+
+Use these endpoints from the frontend:
+
+```
+curl http://localhost:8085/api/spotter/health
+curl http://localhost:8085/api/spotter/spaces
+curl http://localhost:8085/api/spotter/lots
+curl http://localhost:8085/api/spotter/zones
+curl http://localhost:8085/api/spotter/summary
+curl http://localhost:8085/api/spotter/events
+```
+
+Filter spaces by lot, zone, occupancy, or disability permit requirement:
+
+```
+curl "http://localhost:8085/api/spotter/spaces?lotName=P1-North&zone=A&occupied=false"
+```
+
+Advance the simulation by one sensor event:
+
+```
+curl -X POST http://localhost:8085/api/spotter/simulation/next
+```
+
+Run several simulation events at once:
+
+```
+curl -X POST http://localhost:8085/api/spotter/simulation/run \
+-H "Content-Type: application/json" \
+-d '{
+  "eventCount": 5,
+  "publishEvents": true
+}'
+```
+
+Record a manual sensor reading:
+
+```
+curl -X POST http://localhost:8085/api/spotter/sensors/UOW-P1-A-001/detect \
+-H "Content-Type: application/json" \
+-d '{
+  "occupied": true,
+  "confidence": 0.98,
+  "source": "frontend-demo"
+}'
+```
+
+Reset the in-memory database back to the CSV dataset and restart the simulation feed:
+
+```
+curl -X POST http://localhost:8085/api/spotter/simulation/reset
+```
   

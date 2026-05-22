@@ -73,6 +73,10 @@
 	<modules>
     	<module>accounts</module>
 		<module>spotter</module>
+<<<<<<< Updated upstream
+=======
+		<module>adminstats</module>
+>>>>>>> Stashed changes
 	</modules>
 
 </project>
