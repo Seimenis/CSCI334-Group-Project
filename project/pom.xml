@@ -71,12 +71,9 @@
 	<packaging>pom</packaging>
 
 	<modules>
-    	<module>accounts</module>
-		<module>spotter</module>
-<<<<<<< Updated upstream
-=======
-		<module>adminstats</module>
->>>>>>> Stashed changes
-	</modules>
+    <module>accounts</module>
+    <module>spotter</module>
+    <module>adminstats</module>
+</modules>
 
 </project>
