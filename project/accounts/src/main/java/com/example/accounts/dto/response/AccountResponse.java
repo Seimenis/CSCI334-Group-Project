@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.example.accounts.model.Account;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 public class AccountResponse {
     private Long id;
@@ -12,16 +13,18 @@ public class AccountResponse {
     private Role role;
     private boolean enabled;
     private LocalDateTime createdAt;
+    private Subscription subscription;
 
     public AccountResponse() {}
 
-    public AccountResponse(Long id, String email, String username, Role role, boolean enabled, LocalDateTime createdAt) {
+    public AccountResponse(Long id, String email, String username, Role role, boolean enabled, LocalDateTime createdAt, Subscription subscription) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.role = role;
         this.enabled = enabled;
         this.createdAt = createdAt;
+        this.subscription = subscription;
     }
 
     public AccountResponse(Account account) {
@@ -31,7 +34,8 @@ public class AccountResponse {
             account.getUsername(), 
             account.getRole(), 
             account.isEnabled(), 
-            account.getCreatedAt()
+            account.getCreatedAt(),
+            account.getSubscription()
         );
     }
 
@@ -57,5 +61,9 @@ public class AccountResponse {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Subscription getSubscription() {
+        return subscription;
     }
 }
