@@ -1,8 +1,11 @@
 package com.example.adminstats.service;
 
+import org.springframework.stereotype.Service;
+
 import com.example.adminstats.model.Snapshot;
 import com.example.adminstats.model.DTO.*;
 
+@Service
 public class OccupancyService {
     public OccupancySnapshotDTO OccupancySnapshotAssembler(Snapshot snapshot){
         int hour = -1;

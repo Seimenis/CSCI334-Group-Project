@@ -9,6 +9,12 @@ public class Summary {
     private PeakHourSnapshotDTO peakHour_snap;
     private UtilisationSnapshotDTO utilisation_snap;
 
+    public Summary(OccupancySnapshotDTO _occupancy_snap, PeakHourSnapshotDTO _peakHour_snap, UtilisationSnapshotDTO _utilisation_snap){
+        this.occupancy_snap = _occupancy_snap;
+        this.peakHour_snap = _peakHour_snap;
+        this.utilisation_snap = _utilisation_snap;
+    }
+
     public void setOccupancySnapshot(OccupancySnapshotDTO _occupancy_snap){this.occupancy_snap = _occupancy_snap;}
     public void setPeakHourSnapshot(PeakHourSnapshotDTO _peakHour_snap){this.peakHour_snap = _peakHour_snap;}
     public void setUtilisationSnapshot(UtilisationSnapshotDTO _utilisation_snap){this.utilisation_snap = _utilisation_snap;}

@@ -1,8 +1,11 @@
 package com.example.adminstats.service;
 
+import org.springframework.stereotype.Service;
+
 import com.example.adminstats.model.Snapshot;
 import com.example.adminstats.model.DTO.*;
 
+@Service
 public class PeakHourService {
     public PeakHourSnapshotDTO PeakHourSnapshotAssembler(Snapshot snapshot){
         int hour = -1;
