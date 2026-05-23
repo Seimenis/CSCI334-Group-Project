@@ -2,6 +2,7 @@ package com.example.accounts.dto.event;
 
 import com.example.accounts.model.Account;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 public class AccountUpdatedEvent {
     private final EventMetadata metadata = new EventMetadata();
@@ -10,15 +11,17 @@ public class AccountUpdatedEvent {
     private String username;
     private Role role;
     private boolean enabled;
+    private Subscription subscription;
 
     public AccountUpdatedEvent() {}
 
-    public AccountUpdatedEvent(Long accountId, String email, String username, Role role, boolean enabled) {
+    public AccountUpdatedEvent(Long accountId, String email, String username, Role role, boolean enabled, Subscription subscription) {
         this.accountId = accountId;
         this.email = email;
         this.username = username;
         this.role = role;
         this.enabled = enabled;
+        this.subscription = subscription;
     }
 
     public AccountUpdatedEvent(Account account) {
@@ -27,7 +30,8 @@ public class AccountUpdatedEvent {
             account.getEmail(),
             account.getUsername(),
             account.getRole(),
-            account.isEnabled()
+            account.isEnabled(),
+            account.getSubscription()
         );
     }
 
@@ -53,5 +57,9 @@ public class AccountUpdatedEvent {
 
     public EventMetadata getMetadata() {
         return metadata;
+    }
+
+    public Subscription getSubscription() {
+        return subscription;
     }
 }

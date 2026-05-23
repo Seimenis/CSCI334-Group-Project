@@ -3,6 +3,7 @@ package com.example.accounts.model;
 import java.time.LocalDateTime;
 
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +23,7 @@ public class Account {
     private Role role;
     private Boolean enabled;
     private LocalDateTime createdAt;
+    private Subscription subscription;
 
     @PrePersist
     public void onCreate() {
@@ -32,12 +34,13 @@ public class Account {
 
     public Account() {}
 
-    public Account(String username, String email, String password, Role role, Boolean enabled) {
+    public Account(String username, String email, String password, Role role, Boolean enabled, Subscription subscription) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
         this.enabled = enabled;
+        this.subscription = subscription;
     }
 
     public Long getId() {
@@ -68,6 +71,10 @@ public class Account {
         return createdAt;
     }
 
+    public Subscription getSubscription() {
+        return subscription;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -90,5 +97,9 @@ public class Account {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 }

@@ -22,6 +22,7 @@ import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.security.JwtService;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 @Service
 public class AccountService {
@@ -66,6 +67,7 @@ public class AccountService {
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         account.setRole(role);
         account.setEnabled(true);
+        account.setSubscription(Subscription.FREE);
         account = accountRepository.save(account);
 
         // Publish kafka event
@@ -154,5 +156,27 @@ public class AccountService {
         AccountUpdatedEvent event = new AccountUpdatedEvent(account);
         accountEventProducer.publishAccountUpdatedEvent(event);
     }
+
+    private void updateSubscription(String email, Subscription subscription) {
+        Account account = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        account.setSubscription(subscription);
+        accountRepository.save(account);
+
+        // Publish kafka event
+        AccountUpdatedEvent event = new AccountUpdatedEvent(account);
+        accountEventProducer.publishAccountUpdatedEvent(event);
+    }
+
     
+
+    public void upgradeSubscription(String email) {
+        updateSubscription(email, Subscription.PREMIUM);
+    }
+
+
+    public void downgradeSubscription(String email) {
+        updateSubscription(email, Subscription.FREE);
+    }
 }
