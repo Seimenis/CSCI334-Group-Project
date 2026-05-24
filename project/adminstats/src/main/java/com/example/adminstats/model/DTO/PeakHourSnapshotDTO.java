@@ -24,4 +24,11 @@ public class PeakHourSnapshotDTO {
     public LocalDate getDate() { return date; }
     public int getHour() { return hour; }
     public double getOccupancyRate() { return occupancyRate; }
+
+    @Override
+    public String toString(){
+        return "Peak Hour Occupancy: \n" +
+        "Hour: " + hour + ":00\n" + 
+        "Occupancy Rate: " + occupancyRate + "%\n";
+    }
 }

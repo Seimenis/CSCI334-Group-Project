@@ -20,4 +20,10 @@ public class UtilisationSnapshotDTO {
     public int getLotId() { return lotId; }
     public LocalDate getDate() { return date; }
     public double getUtilisationRate() { return utilisationRate; }
+
+    @Override
+    public String toString(){
+        return "Daily Utilisation: \n" +
+        "Overall: " + utilisationRate + "%\n";
+    }
 }
