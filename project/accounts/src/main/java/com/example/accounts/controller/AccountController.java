@@ -67,4 +67,24 @@ public class AccountController {
         accountService.update(updateRequest, email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    // updating subscription
+
+    @PatchMapping("/subscription/upgrade")
+    public ResponseEntity<Void> upgradeSubscription() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+    
+        accountService.upgradeSubscription(email);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/subscription/downgrade")
+    public ResponseEntity<Void> downgradeSubscription() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        accountService.downgradeSubscription(email);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
