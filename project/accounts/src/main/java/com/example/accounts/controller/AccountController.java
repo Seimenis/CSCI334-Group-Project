@@ -1,6 +1,7 @@
 package com.example.accounts.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.accounts.dto.AuthResult;
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.request.LoginRequest;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.request.UpdateRequest;
@@ -18,6 +21,8 @@ import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.dto.response.AuthResponse;
 import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.service.AccountService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/accounts")
@@ -32,15 +37,52 @@ public class AccountController {
     // Creating account (registration) and authentication (login)
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest);
-        return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
+        RegisterResult registerResult = accountService.register(registerRequest);
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", registerResult.getToken())
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(7 * 24 * 60 * 60)
+            .sameSite("Lax")
+            .build();
+
+        RegisterResponse registerResponse = new RegisterResponse(
+            registerResult.getId(),
+            registerResult.getUsername(),
+            registerResult.getEmail(),
+            registerResult.getCreatedAt(),
+            registerResult.getMessage());
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Set-Cookie", cookie.toString())
+            .body(registerResponse);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        AuthResponse authResponse = accountService.authenticate(loginRequest);
-        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        AuthResult authResult = accountService.authenticate(loginRequest);
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", authResult.getToken())
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(7 * 24 * 60 * 60)
+            .sameSite("Lax")
+            .build();
+
+        AuthResponse authResponse = new AuthResponse(
+            authResult.getId(),
+            authResult.getUsername(),
+            authResult.getEmail(),
+            authResult.getRole());
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Set-Cookie", cookie.toString())
+            .body(authResponse);
     }
 
     // Reading their own account details
