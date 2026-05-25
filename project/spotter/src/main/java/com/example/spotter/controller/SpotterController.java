@@ -20,6 +20,7 @@ import com.example.spotter.dto.response.DetectionEventResponse;
 import com.example.spotter.dto.response.SimulationRunResponse;
 import com.example.spotter.dto.response.SpaceResponse;
 import com.example.spotter.dto.response.SpotterSummaryResponse;
+import com.example.spotter.dto.response.ZoneSummaryResponse;
 import com.example.spotter.service.SpotterService;
 
 import jakarta.validation.Valid;
@@ -46,6 +47,16 @@ public class SpotterController {
             @RequestParam(required = false) Boolean occupied,
             @RequestParam(required = false) Boolean disabilityPermitRequired) {
         return spotterService.getSpaces(lotName, zone, occupied, disabilityPermitRequired);
+    }
+
+    @GetMapping("/lots")
+    public List<String> getLots() {
+        return spotterService.getLots();
+    }
+
+    @GetMapping("/zones")
+    public List<ZoneSummaryResponse> getZones(@RequestParam(required = false) String lotName) {
+        return spotterService.getZones(lotName);
     }
 
     @GetMapping("/spaces/{spaceId}")

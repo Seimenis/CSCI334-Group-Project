@@ -2,26 +2,27 @@ package com.example.adminstats.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.adminstats.model.Snapshot;
 import com.example.adminstats.model.DTO.*;
 
 @Service
 public class PeakHourService {
-    public PeakHourSnapshotDTO PeakHourSnapshotAssembler(Snapshot snapshot){
+    public PeakHourSnapshotDTO PeakHourSnapshotAssembler(SnapshotDTO snapshot){
         int hour = -1;
         double occupancyRate = -1;
         int[] occupancy_history = snapshot.getOccupancy();
         int maxOccupancy = -1;
 
+        // finds highest occupancy number and it's hour
         for(int i = 0; i < 24; i++){
             if(occupancy_history[i] > maxOccupancy){
                 maxOccupancy = occupancy_history[i];
-                hour = i;
+                hour = i+1;
             }
         }
 
-        if(maxOccupancy >= 0 && snapshot.getSpotsTotal() > 0){
-            occupancyRate = (double) maxOccupancy / snapshot.getSpotsTotal();
+        // condition against dividing by zero
+        if(snapshot.getSpotsTotal() > 0){
+            occupancyRate = ((double) maxOccupancy / snapshot.getSpotsTotal()) * 100;
         }
 
         PeakHourSnapshotDTO phs = new PeakHourSnapshotDTO(

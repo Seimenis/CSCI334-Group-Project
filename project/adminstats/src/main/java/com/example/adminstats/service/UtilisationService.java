@@ -1,23 +1,26 @@
 package com.example.adminstats.service;
 
+import java.util.Arrays;
+
 import org.springframework.stereotype.Service;
 
-import com.example.adminstats.model.Snapshot;
+import com.example.adminstats.model.DTO.SnapshotDTO;
 import com.example.adminstats.model.DTO.UtilisationSnapshotDTO;
 
 @Service
 public class UtilisationService {
-    public UtilisationSnapshotDTO UtilisationSnapshotAssembler(Snapshot snapshot){
-        double utilisationRate = -1;
+    public UtilisationSnapshotDTO UtilisationSnapshotAssembler(SnapshotDTO snapshot){
+        double utilisationRate = 0;
         int[] occupancy_history = snapshot.getOccupancy();
         int end = 24;
 
-        for(int i = 0; i <= end; i++){
+        // condition against counting undefined occupancies (-1) in the utilisation
+        for(int i = 0; i <= end-1; i++){
             if(occupancy_history[i] == -1){
                 end = i-1;
                 break;
             }
-            utilisationRate += (occupancy_history[i]/snapshot.getSpotsTotal())*100;
+            utilisationRate += ((double) occupancy_history[i]/snapshot.getSpotsTotal())*100;
         }
 
         utilisationRate = utilisationRate / end;

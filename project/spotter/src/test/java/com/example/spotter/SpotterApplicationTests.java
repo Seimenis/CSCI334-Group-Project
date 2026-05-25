@@ -5,6 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@AutoConfigureMockMvc
 @SpringBootTest(properties = "spotter.kafka.enabled=false")
 class SpotterApplicationTests {
 
@@ -13,5 +21,26 @@ class SpotterApplicationTests {
 
 	@Test
 	void contextLoads() {
+	}
+
+	@Test
+	void exposesSeededSpacesForFrontend() throws Exception {
+		mockMvc.perform(get("/api/spotter/spaces"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(30)))
+				.andExpect(jsonPath("$[0].sensorId").exists())
+				.andExpect(jsonPath("$[0].lotName").exists())
+				.andExpect(jsonPath("$[0].occupied").exists());
+	}
+
+	@Test
+	void runsNextSimulationEventFromCsvFeed() throws Exception {
+		mockMvc.perform(post("/api/spotter/simulation/next")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.appliedEvents").value(1))
+				.andExpect(jsonPath("$.feedSize", greaterThanOrEqualTo(1)))
+				.andExpect(jsonPath("$.events", hasSize(1)))
+				.andExpect(jsonPath("$.summary.totalSpaces").value(30));
 	}
 }

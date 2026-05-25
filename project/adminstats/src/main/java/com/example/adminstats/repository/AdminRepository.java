@@ -5,9 +5,11 @@ import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import  com.example.adminstats.model.Snapshot;
+import com.example.adminstats.model.Snapshot;
 
+// singleton object
 @Repository
-public interface AdminRepository extends JpaRepository<Snapshot, Long>{
+public interface AdminRepository extends JpaRepository<Snapshot, LocalDate>{
     Snapshot findSnapshotByDate(LocalDate date);
+    Snapshot findTopByOrderByDateDesc();
 }

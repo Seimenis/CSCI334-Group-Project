@@ -63,6 +63,18 @@ public class SpotterService {
 				.map(SpaceResponse::new)
 				.toList();
 	}
+
+	public List<String> getLots() {
+		return _repository.findAll().stream()
+				.map(Space::getLotName)
+				.distinct()
+				.sorted()
+				.toList();
+	}
+
+	public List<ZoneSummaryResponse> getZones(String lotName) {
+		return getSummary(lotName, null).getZones();
+	}
 	
 	/**
 	 * Returns whether a space is occupied.
@@ -276,6 +288,8 @@ public class SpotterService {
 							totalSpaces - occupiedSpaces,
 							toRate(occupiedSpaces, totalSpaces));
 				})
+				.sorted(Comparator.comparing(ZoneSummaryResponse::getLotName)
+						.thenComparing(ZoneSummaryResponse::getZone))
 				.toList();
 	}
 

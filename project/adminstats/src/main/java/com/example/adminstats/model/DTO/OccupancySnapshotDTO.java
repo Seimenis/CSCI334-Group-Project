@@ -28,4 +28,12 @@ public class OccupancySnapshotDTO {
     public int getHour() { return hour; }
     public int getSpotsTaken() { return spotsTaken; }
     public int getSpotsTotal() { return spotsTotal; }
+
+    @Override
+    public String toString(){
+        return "Last Recorded Occupancy: \n" +
+        "Hour: " + hour + ":00\n" + 
+        "Occupants: " + spotsTaken + "\n" + 
+        "Capacity: " + spotsTotal + "\n";
+    }
 }

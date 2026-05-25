@@ -1,21 +1,17 @@
-package com.example.adminstats.model;
+package com.example.adminstats.model.DTO;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+public class SnapshotDTO {
 
-@Entity
-public class Snapshot {
     private int lotId;
-    @Id
     private LocalDate date;
-    private String occupancy;
+    private int[] occupancy = new int[24]; // empty / not recorded hours become -1
     private int spotsTotal;
 
-    public Snapshot() {}
+    public SnapshotDTO() {}
 
-    public Snapshot(Long id, int lotId, LocalDate date, String occupancy, int spotsTotal) {
+    public SnapshotDTO(int lotId, LocalDate date, int[] occupancy, int spotsTotal) {
         this.lotId = lotId;
         this.date = date;
         this.occupancy = occupancy;
@@ -24,12 +20,12 @@ public class Snapshot {
 
     public void setLotId(int _lotId){this.lotId=_lotId;}
     public void setDate(LocalDate _date){this.date=_date;}
-    public void setOccupancy(String _occupancy){this.occupancy=_occupancy;}
+    public void setOccupancy(int[] _occupancy){this.occupancy=_occupancy;}
     public void setSpotsTotal(int _spotsTotal){this.spotsTotal = _spotsTotal;}
 
     public int getLotId(){return this.lotId;}
     public LocalDate getDate(){return this.date;}
-    public String getOccupancy(){return this.occupancy;}
+    public int[] getOccupancy(){return this.occupancy;}
     public int getSpotsTotal(){return this.spotsTotal;}
 }
 
