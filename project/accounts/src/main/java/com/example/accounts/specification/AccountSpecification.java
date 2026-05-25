@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.example.accounts.model.Account;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 public class AccountSpecification {
 
@@ -17,6 +18,11 @@ public class AccountSpecification {
     public static Specification<Account> role(Role role) {
         return (root, query, cb) ->
             role == null ? null : cb.equal(root.get("role"), role);
+    }
+
+    public static Specification<Account> subscription(Subscription subscription) {
+        return (root, query, cb) ->
+            subscription == null ? null : cb.equal(root.get("subscription"), subscription);
     }
 
     public static Specification<Account> createdBetween(LocalDateTime start, LocalDateTime end) {

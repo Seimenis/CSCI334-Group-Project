@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.service.AccountStaffService;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 
 @RestController
@@ -29,11 +30,12 @@ public class AccountStaffController {
     public List<AccountResponse> getAccounts(
         @RequestParam(required = false) Boolean enabled,
         @RequestParam(required = false) Role role,
+        @RequestParam(required = false) Subscription subscription,
         @RequestParam(required = false) LocalDate startDate,
         @RequestParam(required = false) LocalDate endDate
     ) {
 
-        return accountStaffService.getAccounts(enabled, role, startDate, endDate);
+        return accountStaffService.getAccounts(enabled, role, subscription, startDate, endDate);
     }
     
 }
