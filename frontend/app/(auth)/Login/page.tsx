@@ -15,7 +15,6 @@ type AuthResponse = {
     username: string;
     email: string;
     role: Role;
-    token: string;
 };
 
 export default function LoginPage() {
@@ -39,9 +38,14 @@ export default function LoginPage() {
                 credentials: "include",
             });
 
+            if (data.role === "STAFF" || data.role === "ADMIN") {
+                window.location.href = "/staff";
+            } else {
+                window.location.href = "/user";
+            }
+
             console.log("Logged in:", data);
 
-            window.location.href = "/dashboard";
         } catch (err: any) {
             setError(err.message ?? "Login failed");
         } finally {
@@ -52,16 +56,16 @@ export default function LoginPage() {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50">
             <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border">
-                <h2 className="text-2xl font-semibold mb-6 text-center">
+                <h2 className="text-2xl font-semibold mb-6 text-center text-black">
                     Login
                 </h2>
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                        <label className="text-sm font-medium">Email</label>
+                        <label className="text-sm font-medium text-black">Email</label>
                         <input
                             type="email"
-                            className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring"
+                            className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring text-black"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -69,10 +73,10 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium">Password</label>
+                        <label className="text-sm font-medium text-black">Password</label>
                         <input
                             type="password"
-                            className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring"
+                            className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring text-black"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -90,6 +94,13 @@ export default function LoginPage() {
                     >
                         {loading ? "Logging in..." : "Login"}
                     </button>
+
+                    <div className="text-center text-sm text-gray-600">
+                        Don't have an account?{" "}
+                        <a href="/register" className="text-blue-500 hover:underline">
+                            Register here
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>

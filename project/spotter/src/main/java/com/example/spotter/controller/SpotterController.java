@@ -20,10 +20,6 @@ import com.example.spotter.dto.response.DetectionEventResponse;
 import com.example.spotter.dto.response.SimulationRunResponse;
 import com.example.spotter.dto.response.SpaceResponse;
 import com.example.spotter.dto.response.SpotterSummaryResponse;
-<<<<<<< Updated upstream
-=======
-import com.example.spotter.dto.response.ZoneSummaryResponse;
->>>>>>> Stashed changes
 import com.example.spotter.service.SpotterService;
 
 import jakarta.validation.Valid;
@@ -52,19 +48,6 @@ public class SpotterController {
         return spotterService.getSpaces(lotName, zone, occupied, disabilityPermitRequired);
     }
 
-<<<<<<< Updated upstream
-=======
-    @GetMapping("/lots")
-    public List<String> getLots() {
-        return spotterService.getLots();
-    }
-
-    @GetMapping("/zones")
-    public List<ZoneSummaryResponse> getZones(@RequestParam(required = false) String lotName) {
-        return spotterService.getZones(lotName);
-    }
-
->>>>>>> Stashed changes
     @GetMapping("/spaces/{spaceId}")
     public SpaceResponse getSpace(@PathVariable Long spaceId) {
         return spotterService.getSpace(spaceId);

@@ -44,12 +44,27 @@ export TOKEN="<your-token>"
 
 ## Commands
 
+Keep in mind i am calling the the port the microservice runs on.
+However, for the frontend I utilise an api gateway service which is accessed as follows.
+
+```
+curl -X POST http://localhost:8089/api/accounts/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "admin@example.com",
+  "password": "changemepls123!"
+}'
+```
+
+This allows me to implement a fetcher that fetches from the same port everytime.
+
 ### User Commands
 
 Registering a user
 
+
 ```
-curl -X POST http://localhost:8080/accounts/register \
+curl -X POST http://localhost:8081/accounts/register \
 -H "Content-Type: application/json" \
 -d '{
   "username": "Tom",
@@ -61,7 +76,7 @@ curl -X POST http://localhost:8080/accounts/register \
 Logging in as a user
 
 ```
-curl -X POST http://localhost:8080/accounts/login \
+curl -X POST http://localhost:8081/accounts/login \
 -H "Content-Type: application/json" \
 -d '{
   "email": "tom@ross.com",
@@ -72,7 +87,7 @@ curl -X POST http://localhost:8080/accounts/login \
 Logging in as admin
 
 ```
-curl -X POST http://localhost:8080/accounts/login \
+curl -X POST http://localhost:8081/accounts/login \
 -H "Content-Type: application/json" \
 -d '{
   "email": "admin@example.com",
@@ -80,16 +95,23 @@ curl -X POST http://localhost:8080/accounts/login \
 }'
 ```
 
+curl -X POST http://localhost:8089/api/accounts/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "admin@example.com",
+  "password": "changemepls123!"
+}'
+
 Viewing account details (except for password)
 
 ```
-curl -G "http://localhost:8080/accounts" -H "Authorization: Bearer ${TOKEN}"
+curl -G "http://localhost:8081/accounts" -H "Authorization: Bearer ${TOKEN}"
 ```
 
 Update account details (will need to login and export token again afterwards)
 
 ```
-curl -X PATCH "http://localhost:8080/accounts" \
+curl -X PATCH "http://localhost:8081/accounts" \
 -H "Authorization: Bearer ${TOKEN}" \
 -H "Content-Type: application/json" \
 -d '{
@@ -106,18 +128,18 @@ This will enable you to use the following commands
 Querying accounts for analytics using different syntax
 
 ```
-curl -G "http://localhost:8080/staff/accounts" \
+curl -G "http://localhost:8081/staff/accounts" \
   -H "Authorization: Bearer ${TOKEN}"
 
 
-curl -G "http://localhost:8080/staff/accounts" \
+curl -G "http://localhost:8081/staff/accounts" \
   -H "Authorization: Bearer ${TOKEN}" \
   -d "enabled=true" \
   -d "role=STAFF" \
   -d "startDate=2025-01-01" \
   -d "endDate=2026-12-31"
 
-curl -G "http://localhost:8080/staff/accounts" -H "Authorization: Bearer ${TOKEN}" -d "enabled=false&role=USER"
+curl -G "http://localhost:8081/staff/accounts" -H "Authorization: Bearer ${TOKEN}" -d "enabled=false&role=USER"
 ```
 
 ### Admin Commands
@@ -125,7 +147,7 @@ curl -G "http://localhost:8080/staff/accounts" -H "Authorization: Bearer ${TOKEN
 Registering staff and admin accounts
 
 ```
-curl -X POST http://localhost:8080/admin/accounts/staff \
+curl -X POST http://localhost:8081/admin/accounts/staff \
 -H "Content-Type: application/json " \
 -H "Authorization: Bearer ${TOKEN}" \
 -d '{
@@ -134,7 +156,7 @@ curl -X POST http://localhost:8080/admin/accounts/staff \
   "password": "moviestar25"
 }'
 
-curl -X POST http://localhost:8080/admin/accounts/admin \
+curl -X POST http://localhost:8081/admin/accounts/admin \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer ${TOKEN}" \
 -d '{
@@ -147,21 +169,21 @@ curl -X POST http://localhost:8080/admin/accounts/admin \
 Querying all and specific users with admin privliges
 
 ```
-curl -G "http://localhost:8080/admin/accounts" -H "Authorization: Bearer ${TOKEN}"
-curl -G "http://localhost:8080/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
+curl -G "http://localhost:8081/admin/accounts" -H "Authorization: Bearer ${TOKEN}"
+curl -G "http://localhost:8081/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
 ```
 
 Enabling and disabling accounts
 
 ```
-curl -X PATCH "http://localhost:8080/admin/accounts/72/enable" -H "Authorization: Bearer ${TOKEN}"
-curl -X PATCH "http://localhost:8080/admin/accounts/21/disable" -H "Authorization: Bearer ${TOKEN}"
+curl -X PATCH "http://localhost:8081/admin/accounts/72/enable" -H "Authorization: Bearer ${TOKEN}"
+curl -X PATCH "http://localhost:8081/admin/accounts/21/disable" -H "Authorization: Bearer ${TOKEN}"
 ```
 
 Deleting accounts
 
 ```
-curl -X DELETE "http://localhost:8080/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
+curl -X DELETE "http://localhost:8081/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
 ```
 
 # Spotter Microservice

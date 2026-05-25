@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.dto.response.RegisterResponse;
@@ -34,13 +35,29 @@ public class AccountAdminController {
 
     @PostMapping("/staff")
     public ResponseEntity<RegisterResponse> registerStaff(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountAdminService.registerStaff(registerRequest);
+        RegisterResult registerResult = accountAdminService.registerStaff(registerRequest);
+
+        RegisterResponse registerResponse = new RegisterResponse(
+            registerResult.getId(),
+            registerResult.getUsername(),
+            registerResult.getEmail(),
+            registerResult.getCreatedAt(),
+            registerResult.getMessage());
+            
         return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/admin")
     public ResponseEntity<RegisterResponse> registerAdmin(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountAdminService.registerAdmin(registerRequest);
+        RegisterResult registerResult = accountAdminService.registerAdmin(registerRequest);
+
+        RegisterResponse registerResponse = new RegisterResponse(
+            registerResult.getId(),
+            registerResult.getUsername(),
+            registerResult.getEmail(),
+            registerResult.getCreatedAt(),
+            registerResult.getMessage());
+
         return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
     }
 

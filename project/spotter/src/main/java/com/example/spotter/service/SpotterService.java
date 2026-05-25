@@ -9,6 +9,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.spotter.dto.event.SpaceUpdatedEvent;
 import com.example.spotter.dto.request.DetectionRequest;
 import com.example.spotter.dto.request.SimulationRequest;
@@ -25,9 +28,6 @@ import com.example.spotter.model.Space;
 import com.example.spotter.repository.DetectionEventRepository;
 import com.example.spotter.repository.SpaceRepository;
 import com.example.spotter.service.dto.event.SpaceCreatedEvent;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SpotterService {
@@ -62,21 +62,6 @@ public class SpotterService {
 						.thenComparing(Space::getBayNumber))
 				.map(SpaceResponse::new)
 				.toList();
-<<<<<<< Updated upstream
-=======
-	}
-
-	public List<String> getLots() {
-		return _repository.findAll().stream()
-				.map(Space::getLotName)
-				.distinct()
-				.sorted()
-				.toList();
-	}
-
-	public List<ZoneSummaryResponse> getZones(String lotName) {
-		return getSummary(lotName, null).getZones();
->>>>>>> Stashed changes
 	}
 	
 	/**
@@ -291,11 +276,6 @@ public class SpotterService {
 							totalSpaces - occupiedSpaces,
 							toRate(occupiedSpaces, totalSpaces));
 				})
-<<<<<<< Updated upstream
-=======
-				.sorted(Comparator.comparing(ZoneSummaryResponse::getLotName)
-						.thenComparing(ZoneSummaryResponse::getZone))
->>>>>>> Stashed changes
 				.toList();
 	}
 
