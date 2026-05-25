@@ -7,8 +7,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-<<<<<<< Updated upstream
-=======
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -17,7 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
->>>>>>> Stashed changes
 @SpringBootTest(properties = "spotter.kafka.enabled=false")
 class SpotterApplicationTests {
 
@@ -27,8 +24,6 @@ class SpotterApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-<<<<<<< Updated upstream
-=======
 
 	@Test
 	void exposesSeededSpacesForFrontend() throws Exception {
@@ -50,5 +45,4 @@ class SpotterApplicationTests {
 				.andExpect(jsonPath("$.events", hasSize(1)))
 				.andExpect(jsonPath("$.summary.totalSpaces").value(30));
 	}
->>>>>>> Stashed changes
 }

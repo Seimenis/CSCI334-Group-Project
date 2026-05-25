@@ -62,8 +62,6 @@ public class SpotterService {
 						.thenComparing(Space::getBayNumber))
 				.map(SpaceResponse::new)
 				.toList();
-<<<<<<< Updated upstream
-=======
 	}
 
 	public List<String> getLots() {
@@ -76,7 +74,6 @@ public class SpotterService {
 
 	public List<ZoneSummaryResponse> getZones(String lotName) {
 		return getSummary(lotName, null).getZones();
->>>>>>> Stashed changes
 	}
 	
 	/**
@@ -291,11 +288,8 @@ public class SpotterService {
 							totalSpaces - occupiedSpaces,
 							toRate(occupiedSpaces, totalSpaces));
 				})
-<<<<<<< Updated upstream
-=======
 				.sorted(Comparator.comparing(ZoneSummaryResponse::getLotName)
 						.thenComparing(ZoneSummaryResponse::getZone))
->>>>>>> Stashed changes
 				.toList();
 	}
 
