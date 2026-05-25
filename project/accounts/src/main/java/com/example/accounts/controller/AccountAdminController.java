@@ -96,6 +96,4 @@ public class AccountAdminController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
-
 }

@@ -3,7 +3,12 @@ The UOW Parking Lot System is a Smart Lot, equipped with parking space sensors, 
 
 ## Running the application
 
-Startup docker instance
+Open up the backend directory
+```
+cd backend
+```
+
+Startup docker instance for kafka servers
 ```
 docker compose up -d
 docker ps
@@ -11,11 +16,26 @@ docker logs kafka
 docker logs zookeeper
 ```
 
-Now startup microservice using the run button in vscode
+Startup at the api gateway since some microservices rely on it
+```
+cd api-gateway
+mvn spring-boot:run
+cd ..
+```
 
-Make sure to operate terminal commands using Git Bash.
+Make sure to operate terminal commands inputs using Git Bash.
 
 # Accounts Microservice
+
+Startup accounts microservice
+```
+cd accounts
+mvn spring-boot:run
+cd ..
+```
+
+Make sure the api gateway is running since all request go through the gateway.
+This was done so that cookies can automatically be set with the JWT token which is necessary for the frontend.
 
 ## Environment variables
 
@@ -32,31 +52,10 @@ ADMIN_USERNAME
 
 KAFKA_SERVER
 
-
-After logging into your account you will receive a JWT Token, 
-this token is necessary security measure for any API call using an Authorization header.
-It can be set in the terminal like so:
-
-```
-export TOKEN="<your-token>"
-```
-
+After logging into your account a cookie will be set containing your JWT token.
+This is used to authorise your account and check you have the privelige to send commands.
 
 ## Commands
-
-Keep in mind i am calling the the port the microservice runs on.
-However, for the frontend I utilise an api gateway service which is accessed as follows.
-
-```
-curl -X POST http://localhost:8089/api/accounts/login \
--H "Content-Type: application/json" \
--d '{
-  "email": "admin@example.com",
-  "password": "changemepls123!"
-}'
-```
-
-This allows me to implement a fetcher that fetches from the same port everytime.
 
 ### User Commands
 
@@ -64,7 +63,7 @@ Registering a user
 
 
 ```
-curl -X POST http://localhost:8081/accounts/register \
+curl -i -c cookies.txt -X POST http://localhost:8081/accounts/register \
 -H "Content-Type: application/json" \
 -d '{
   "username": "Tom",
@@ -76,7 +75,7 @@ curl -X POST http://localhost:8081/accounts/register \
 Logging in as a user
 
 ```
-curl -X POST http://localhost:8081/accounts/login \
+curl -i -c cookies.txt -X POST http://localhost:8081/accounts/login \
 -H "Content-Type: application/json" \
 -d '{
   "email": "tom@ross.com",
@@ -87,7 +86,7 @@ curl -X POST http://localhost:8081/accounts/login \
 Logging in as admin
 
 ```
-curl -X POST http://localhost:8081/accounts/login \
+curl -i -c cookies.txt -X POST http://localhost:8089/api/accounts/login \
 -H "Content-Type: application/json" \
 -d '{
   "email": "admin@example.com",
@@ -95,30 +94,30 @@ curl -X POST http://localhost:8081/accounts/login \
 }'
 ```
 
-curl -X POST http://localhost:8089/api/accounts/login \
--H "Content-Type: application/json" \
--d '{
-  "email": "admin@example.com",
-  "password": "changemepls123!"
-}'
+
 
 Viewing account details (except for password)
 
 ```
-curl -G "http://localhost:8081/accounts" -H "Authorization: Bearer ${TOKEN}"
+curl -i -b cookies.txt -G "http://localhost:8089/api/accounts"
 ```
 
 Update account details (will need to login and export token again afterwards)
 
 ```
-curl -X PATCH "http://localhost:8081/accounts" \
--H "Authorization: Bearer ${TOKEN}" \
+curl -i -b cookies.txt -X PATCH "http://localhost:8089/api/accounts" \
 -H "Content-Type: application/json" \
 -d '{
   "username": "Michael Fazbender",
   "email": "fazbend@gmail.com",
   "password": "yodellingman2500"
 }'
+```
+
+Upgrading or downgrading your subscription
+```
+curl -i -b cookies.txt -X PATCH "http://localhost:8089/api/accounts/subscription/upgrade"
+curl -i -b cookies.txt -X PATCH "http://localhost:8089/api/accounts/subscription/downgrade"
 ```
 
 ### Staff Commands
@@ -128,18 +127,16 @@ This will enable you to use the following commands
 Querying accounts for analytics using different syntax
 
 ```
-curl -G "http://localhost:8081/staff/accounts" \
-  -H "Authorization: Bearer ${TOKEN}"
+curl -i -b cookies.txt -G "http://localhost:8089/api/staff/accounts"
 
 
-curl -G "http://localhost:8081/staff/accounts" \
-  -H "Authorization: Bearer ${TOKEN}" \
+curl -i -b cookies.txt -G "http://localhost:8089/api/staff/accounts" \
   -d "enabled=true" \
   -d "role=STAFF" \
   -d "startDate=2025-01-01" \
   -d "endDate=2026-12-31"
 
-curl -G "http://localhost:8081/staff/accounts" -H "Authorization: Bearer ${TOKEN}" -d "enabled=false&role=USER"
+curl -i -b cookies.txt -G "http://localhost:8089/api/staff/accounts" -d "enabled=false&role=USER"
 ```
 
 ### Admin Commands
@@ -147,18 +144,16 @@ curl -G "http://localhost:8081/staff/accounts" -H "Authorization: Bearer ${TOKEN
 Registering staff and admin accounts
 
 ```
-curl -X POST http://localhost:8081/admin/accounts/staff \
+curl -i -b cookies.txt -X POST http://localhost:8089/api/admin/accounts/staff \
 -H "Content-Type: application/json " \
--H "Authorization: Bearer ${TOKEN}" \
 -d '{
   "username": "Billy Jean",
   "email": "thekidisnotmyown@gmail.com",
   "password": "moviestar25"
 }'
 
-curl -X POST http://localhost:8081/admin/accounts/admin \
+curl -i -b cookies.txt -X POST http://localhost:8089/api/admin/accounts/admin \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ${TOKEN}" \
 -d '{
   "username": "Bob rossy",
   "email": "whateveweqafwar@gmail.com",
@@ -169,21 +164,21 @@ curl -X POST http://localhost:8081/admin/accounts/admin \
 Querying all and specific users with admin privliges
 
 ```
-curl -G "http://localhost:8081/admin/accounts" -H "Authorization: Bearer ${TOKEN}"
-curl -G "http://localhost:8081/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
+curl -i -b cookies.txt -G "http://localhost:8089/api/admin/accounts"
+curl -i -b cookies.txt -G "http://localhost:8089/api/admin/accounts/72"
 ```
 
 Enabling and disabling accounts
 
 ```
-curl -X PATCH "http://localhost:8081/admin/accounts/72/enable" -H "Authorization: Bearer ${TOKEN}"
-curl -X PATCH "http://localhost:8081/admin/accounts/21/disable" -H "Authorization: Bearer ${TOKEN}"
+curl -i -b cookies.txt -X PATCH "http://localhost:8089/api/admin/accounts/72/enable"
+curl -i -b cookies.txt -X PATCH "http://localhost:8089/api/admin/accounts/21/disable"
 ```
 
 Deleting accounts
 
 ```
-curl -X DELETE "http://localhost:8081/admin/accounts/89" -H "Authorization: Bearer ${TOKEN}"
+curl -i -b cookies.txt -X DELETE "http://localhost:8089/api/admin/accounts/89"
 ```
 
 # Spotter Microservice
