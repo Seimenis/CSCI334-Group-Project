@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.event.AccountDeletedEvent;
 import com.example.accounts.dto.event.AccountUpdatedEvent;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.response.AccountResponse;
-import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.util.Role;
@@ -31,19 +31,20 @@ public class AccountAdminService {
         this.accountProducerService = accountProducerService;
     }
 
-    // Create
-
-    public RegisterResponse registerAdmin(RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest, Role.ADMIN);
-        return registerResponse;
+    public RegisterResult registerAdmin(RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.ADMIN, false);
+        return registerResult;
     }
 
-    public RegisterResponse registerStaff(RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest, Role.STAFF);
-        return registerResponse;
+    public RegisterResult registerInitialAdmin(RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.ADMIN, true);
+        return registerResult;
     }
 
-    // Read
+    public RegisterResult registerStaff(RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.STAFF);
+        return registerResult;
+    }
 
     private Account getAccount(Long accountId) {
         return accountRepository.findById(accountId)
@@ -61,8 +62,6 @@ public class AccountAdminService {
             .toList();
     }
 
-    // Update
-
     private void updateAccountEnabledStatus(Long accountId, boolean enabled) {
         Account account = getAccount(accountId);
         account.setEnabled(enabled);
@@ -79,8 +78,6 @@ public class AccountAdminService {
         updateAccountEnabledStatus(accountId, false);
     }
 
-
-    // Delete
 
     public void deleteAccount(Long accountId) {
         accountRepository.deleteById(accountId);

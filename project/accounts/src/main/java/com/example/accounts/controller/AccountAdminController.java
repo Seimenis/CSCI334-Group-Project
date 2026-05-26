@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.dto.response.RegisterResponse;
@@ -30,21 +31,33 @@ public class AccountAdminController {
         this.accountAdminService = accountAdminService;
     }
 
-    // Create
-
     @PostMapping("/staff")
     public ResponseEntity<RegisterResponse> registerStaff(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountAdminService.registerStaff(registerRequest);
+        RegisterResult registerResult = accountAdminService.registerStaff(registerRequest);
+
+        RegisterResponse registerResponse = new RegisterResponse(
+            registerResult.getId(),
+            registerResult.getUsername(),
+            registerResult.getEmail(),
+            registerResult.getCreatedAt(),
+            registerResult.getMessage());
+            
         return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/admin")
     public ResponseEntity<RegisterResponse> registerAdmin(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountAdminService.registerAdmin(registerRequest);
+        RegisterResult registerResult = accountAdminService.registerAdmin(registerRequest);
+
+        RegisterResponse registerResponse = new RegisterResponse(
+            registerResult.getId(),
+            registerResult.getUsername(),
+            registerResult.getEmail(),
+            registerResult.getCreatedAt(),
+            registerResult.getMessage());
+
         return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
     }
-
-    // Read
 
     @GetMapping
     public List<AccountResponse> getAllAccounts() {
@@ -56,8 +69,6 @@ public class AccountAdminController {
         AccountResponse accountResponse = accountAdminService.getAccountById(accountId);
         return new ResponseEntity<>(accountResponse, HttpStatus.OK);
     }
-
-    // Update
 
     @PatchMapping("/{accountId}/enable")
     public ResponseEntity<Void> enableAccount(@PathVariable Long accountId) {
@@ -71,14 +82,10 @@ public class AccountAdminController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // Delete
-    
     @DeleteMapping("/{accountId}")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long accountId) {
         accountAdminService.deleteAccount(accountId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 
 }

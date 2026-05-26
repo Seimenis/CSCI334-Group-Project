@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -34,28 +35,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Skip auth endpoints
         if (path.contains("/login") || path.contains("/register")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
+        String token = null;
 
-        // No token then continue with chain
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extract token
-        String token = authHeader.substring(7);
-
-        // Extract identity
         String email = jwtService.extractEmail(token);
 
 
-        // If valid and not already authenticated
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             try {
@@ -64,7 +67,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     
                     UserDetails userDetails = accountUserDetailsService.loadUserByUsername(email);
                     
-                    // Build authentication object
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                         

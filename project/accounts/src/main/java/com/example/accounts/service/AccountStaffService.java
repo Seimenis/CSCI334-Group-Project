@@ -13,6 +13,7 @@ import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.specification.AccountSpecification;
 import com.example.accounts.util.DateRange;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 @Service
 public class AccountStaffService {
@@ -22,14 +23,13 @@ public class AccountStaffService {
         this.accountRepository = accountRepository;
     }
 
-    // Read
-    
-    public List<AccountResponse> getAccounts(Boolean enabled, Role role, LocalDate startDate, LocalDate endDate) {
+    public List<AccountResponse> getAccounts(Boolean enabled, Role role, Subscription subscription, LocalDate startDate, LocalDate endDate) {
         LocalDateTime[] dateRange = DateRange.resolveRange(startDate, endDate);
 
         Specification<Account> specification =
             Specification.where(AccountSpecification.enabled(enabled))
                          .and(AccountSpecification.role(role))
+                         .and(AccountSpecification.subscription(subscription))
                          .and(AccountSpecification.createdBetween(dateRange[0], dateRange[1]));
 
         return accountRepository.findAll(specification)

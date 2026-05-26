@@ -8,25 +8,22 @@ public class AuthResponse {
     private String username;
     private String email;
     private Role role;
-    private String token;
 
     public AuthResponse() {}
 
-    public AuthResponse(Long id, String username, String email, Role role, String token) {
+    public AuthResponse(Long id, String username, String email, Role role) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.role = role;
-        this.token = token;
     }
 
-    public AuthResponse(Account account, String token) {
+    public AuthResponse(Account account) {
         this(
             account.getId(),
             account.getUsername(),
             account.getEmail(),
-            account.getRole(),
-            token
+            account.getRole()
         );
         
     }
@@ -45,9 +42,5 @@ public class AuthResponse {
 
     public Role getRole() {
         return role;
-    }
-
-    public String getToken() {
-        return token;
     }
 }

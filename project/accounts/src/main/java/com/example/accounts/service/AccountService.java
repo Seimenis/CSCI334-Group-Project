@@ -7,6 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.accounts.dto.AuthResult;
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.event.AccountCreatedEvent;
 import com.example.accounts.dto.event.AccountUpdatedEvent;
 import com.example.accounts.dto.event.LoginFailedEvent;
@@ -16,12 +18,11 @@ import com.example.accounts.dto.request.LoginRequest;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.request.UpdateRequest;
 import com.example.accounts.dto.response.AccountResponse;
-import com.example.accounts.dto.response.AuthResponse;
-import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.security.JwtService;
 import com.example.accounts.util.Role;
+import com.example.accounts.util.Subscription;
 
 @Service
 public class AccountService {
@@ -43,15 +44,16 @@ public class AccountService {
         this.jwtService = jwtService;
     }
 
-    // Create
-
-    public RegisterResponse register(RegisterRequest registerRequest) {
+    public RegisterResult register(RegisterRequest registerRequest) {
         return register(registerRequest, Role.USER);
     }
 
-    public RegisterResponse register(RegisterRequest registerRequest, Role role) {
+    public RegisterResult register(RegisterRequest registerRequest, Role role) {
+        return register(registerRequest, role, true);
+    }
 
-        // Check if email or username already exists
+    public RegisterResult register(RegisterRequest registerRequest, Role role, boolean enabled) {
+
         if (accountRepository.existsByEmail(registerRequest.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
@@ -59,30 +61,35 @@ public class AccountService {
             throw new IllegalArgumentException("Username already in use");
         }
 
-        // Create and save the new account
         Account account = new Account();
         account.setUsername(registerRequest.getUsername());
         account.setEmail(registerRequest.getEmail());
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         account.setRole(role);
-        account.setEnabled(true);
+        account.setEnabled(enabled);
+        account.setSubscription(Subscription.FREE);
         account = accountRepository.save(account);
 
-        // Publish kafka event
         AccountCreatedEvent event = new AccountCreatedEvent(account);
         accountEventProducer.publishAccountCreatedEvent(event);
 
-        // Return the response
-        return new RegisterResponse(account, "Account created successfully");
+        String token = jwtService.generateToken(account);
+
+        TokenIssuedEvent tokenEvent = new TokenIssuedEvent(
+            account.getId(),
+            jwtService.extractIssuedAt(token),
+            jwtService.extractExpiration(token)
+        );
+
+        accountEventProducer.publishTokenIssuedEvent(tokenEvent);
+
+        return new RegisterResult(account, "Account created successfully", token);
     }
 
-    // Authenticate (Login)
-
-    public AuthResponse authenticate(LoginRequest loginRequest) {
+    public AuthResult authenticate(LoginRequest loginRequest) {
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(loginRequest.getEmail());
 
-        // Check if user exists
         if (optionalAccount.isEmpty()) {
             LoginFailedEvent event = new LoginFailedEvent(loginRequest.getEmail(), "No account found with email: " + loginRequest.getEmail());
 
@@ -92,7 +99,12 @@ public class AccountService {
 
         Account account = optionalAccount.get();
 
-        // Verify password
+        if (!account.isEnabled()) {
+            LoginFailedEvent event = new LoginFailedEvent(account, "Account not approved");
+            accountEventProducer.publishLoginFailedEvent(event);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is waiting for admin approval");
+        }
+
         boolean matches = passwordEncoder.matches(
             loginRequest.getPassword(), 
             account.getPassword()
@@ -105,7 +117,6 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
-        // Generate JWT token
         String token = jwtService.generateToken(account);
         
         TokenIssuedEvent tokenEvent = new TokenIssuedEvent(
@@ -116,15 +127,11 @@ public class AccountService {
 
         accountEventProducer.publishTokenIssuedEvent(tokenEvent);
 
-        // Publish login success event
         LoginSucceededEvent loginEvent = new LoginSucceededEvent(account);
         accountEventProducer.publishLoginSucceededEvent(loginEvent);
 
-        // Return response
-        return new AuthResponse(account, token);
+        return new AuthResult(account, token);
     }
-
-    // Read
 
     public AccountResponse getAccount(String email) {
         Account account = accountRepository.findByEmail(email)
@@ -134,7 +141,6 @@ public class AccountService {
     }
 
 
-    // Update
     public void update(UpdateRequest updateRequest, String email) {
         Account account = accountRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -150,9 +156,29 @@ public class AccountService {
 
         accountRepository.save(account);
 
-        // Publish kafka event
         AccountUpdatedEvent event = new AccountUpdatedEvent(account);
         accountEventProducer.publishAccountUpdatedEvent(event);
     }
+
+    private void updateSubscription(String email, Subscription subscription) {
+        Account account = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        account.setSubscription(subscription);
+        accountRepository.save(account);
+
+        AccountUpdatedEvent event = new AccountUpdatedEvent(account);
+        accountEventProducer.publishAccountUpdatedEvent(event);
+    }
+
     
+
+    public void upgradeSubscription(String email) {
+        updateSubscription(email, Subscription.PREMIUM);
+    }
+
+
+    public void downgradeSubscription(String email) {
+        updateSubscription(email, Subscription.FREE);
+    }
 }
