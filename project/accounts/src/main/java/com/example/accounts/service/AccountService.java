@@ -51,6 +51,10 @@ public class AccountService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest, Role role) {
+        return register(registerRequest, role, true);
+    }
+
+    public RegisterResult register(RegisterRequest registerRequest, Role role, boolean enabled) {
 
         // Check if email or username already exists
         if (accountRepository.existsByEmail(registerRequest.getEmail())) {
@@ -66,7 +70,7 @@ public class AccountService {
         account.setEmail(registerRequest.getEmail());
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         account.setRole(role);
-        account.setEnabled(true);
+        account.setEnabled(enabled);
         account.setSubscription(Subscription.FREE);
         account = accountRepository.save(account);
 
@@ -103,6 +107,12 @@ public class AccountService {
         }
 
         Account account = optionalAccount.get();
+
+        if (!account.isEnabled()) {
+            LoginFailedEvent event = new LoginFailedEvent(account, "Account not approved");
+            accountEventProducer.publishLoginFailedEvent(event);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is waiting for admin approval");
+        }
 
         // Verify password
         boolean matches = passwordEncoder.matches(

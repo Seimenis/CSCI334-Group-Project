@@ -3,6 +3,14 @@ The UOW Parking Lot System is a Smart Lot, equipped with parking space sensors, 
 
 ## Running the application
 
+For the dashboard demo on Windows, double-click:
+
+```
+start-dashboard.bat
+```
+
+It opens Kafka, Accounts, API Gateway, Spotter and the frontend in separate terminal windows, then opens `http://localhost:3000`.
+
 Open up the backend directory
 ```
 cd backend

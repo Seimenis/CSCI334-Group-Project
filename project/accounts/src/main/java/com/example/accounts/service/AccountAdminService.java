@@ -34,7 +34,12 @@ public class AccountAdminService {
     // Create
 
     public RegisterResult registerAdmin(RegisterRequest registerRequest) {
-        RegisterResult registerResult = accountService.register(registerRequest, Role.ADMIN);
+        RegisterResult registerResult = accountService.register(registerRequest, Role.ADMIN, false);
+        return registerResult;
+    }
+
+    public RegisterResult registerInitialAdmin(RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.ADMIN, true);
         return registerResult;
     }
 

@@ -3,6 +3,8 @@ package com.example.spotter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -42,5 +44,39 @@ class SpotterApplicationTests {
 				.andExpect(jsonPath("$.feedSize", greaterThanOrEqualTo(1)))
 				.andExpect(jsonPath("$.events", hasSize(1)))
 				.andExpect(jsonPath("$.summary.totalSpaces").value(30));
+	}
+
+	@Test
+	void resetsSimulationData() throws Exception {
+		mockMvc.perform(post("/api/spotter/simulation/next")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(post("/api/spotter/simulation/reset")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.appliedEvents").value(0))
+				.andExpect(jsonPath("$.summary.totalSpaces").value(30));
+
+		mockMvc.perform(get("/api/spotter/events"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(0)));
+	}
+
+	@Test
+	void returnsMoreThanOneHundredStoredEvents() throws Exception {
+		mockMvc.perform(post("/api/spotter/simulation/reset")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(post("/api/spotter/simulation/run")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"eventCount\":105,\"publishEvents\":true}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.appliedEvents").value(105));
+
+		mockMvc.perform(get("/api/spotter/events"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(105)));
 	}
 }

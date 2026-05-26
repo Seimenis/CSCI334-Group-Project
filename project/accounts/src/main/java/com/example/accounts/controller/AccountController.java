@@ -21,6 +21,7 @@ import com.example.accounts.dto.response.AccountResponse;
 import com.example.accounts.dto.response.AuthResponse;
 import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.service.AccountService;
+import com.example.accounts.util.Role;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -58,6 +59,22 @@ public class AccountController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .header("Set-Cookie", cookie.toString())
+            .body(registerResponse);
+    }
+
+    @PostMapping("/register/staff")
+    public ResponseEntity<RegisterResponse> registerStaff(@RequestBody RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.STAFF, false);
+
+        RegisterResponse registerResponse = new RegisterResponse(
+            registerResult.getId(),
+            registerResult.getUsername(),
+            registerResult.getEmail(),
+            registerResult.getCreatedAt(),
+            "Staff account submitted for approval");
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
             .body(registerResponse);
     }
 
