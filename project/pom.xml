@@ -10,8 +10,9 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>project</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>project</name>
+	<version>0.0.1-SNAPSHOT</version>
 	<description/>
 	<url/>
 	<licenses>
@@ -84,12 +85,13 @@
 
 	</dependencies>
 
-	<packaging>pom</packaging>
-
 	<modules>
 		<module>accounts</module>
 		<module>spotter</module>
 		<module>adminstats</module>
+		<module>parking</module>
+		<module>occupancy</module>
+		<module>api-gateway</module>
 	</modules>
 
 </project>
