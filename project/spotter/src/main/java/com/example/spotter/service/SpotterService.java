@@ -186,8 +186,9 @@ public class SpotterService {
 
 	@Transactional
 	public SimulationRunResponse resetSimulation() {
-		detectionEventRepository.deleteAll();
-		_repository.deleteAll();
+		detectionEventRepository.deleteAllInBatch();
+		_repository.deleteAllInBatch();
+		_repository.flush();
 		List<Space> spaces = _repository.saveAll(datasetService.loadSpaces());
 		spaces.stream()
 				.map(SpaceCreatedEvent::new)
@@ -225,7 +226,7 @@ public class SpotterService {
 	}
 
 	public List<DetectionEventResponse> getRecentEvents() {
-		return detectionEventRepository.findTop100ByOrderByDetectedAtDesc().stream()
+		return detectionEventRepository.findAllByOrderByDetectedAtDesc().stream()
 				.map(DetectionEventResponse::new)
 				.toList();
 	}
@@ -238,7 +239,7 @@ public class SpotterService {
 				record.isOccupied(),
 				record.getConfidence(),
 				record.getSource(),
-				record.getObservedAt(),
+				Instant.now(),
 				publishEvent);
 		SpaceResponse response = getSpace(space.getId());
 		return new SimulationEventResponse(record.getSequenceNumber(), response, event);
