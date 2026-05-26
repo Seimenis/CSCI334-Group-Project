@@ -10,8 +10,9 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>project</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>project</name>
+	<version>0.0.1-SNAPSHOT</version>
 	<description/>
 	<url/>
 	<licenses>
@@ -67,8 +68,6 @@
 		</dependency>
 
 	</dependencies>
-
-	<packaging>pom</packaging>
 
 	<modules>
     <module>accounts</module>
