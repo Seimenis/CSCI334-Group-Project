@@ -7,6 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.accounts.dto.AuthResult;
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.event.AccountCreatedEvent;
 import com.example.accounts.dto.event.AccountUpdatedEvent;
 import com.example.accounts.dto.event.LoginFailedEvent;
@@ -16,8 +18,6 @@ import com.example.accounts.dto.request.LoginRequest;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.request.UpdateRequest;
 import com.example.accounts.dto.response.AccountResponse;
-import com.example.accounts.dto.response.AuthResponse;
-import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.security.JwtService;
@@ -46,11 +46,11 @@ public class AccountService {
 
     // Create
 
-    public RegisterResponse register(RegisterRequest registerRequest) {
+    public RegisterResult register(RegisterRequest registerRequest) {
         return register(registerRequest, Role.USER);
     }
 
-    public RegisterResponse register(RegisterRequest registerRequest, Role role) {
+    public RegisterResult register(RegisterRequest registerRequest, Role role) {
 
         // Check if email or username already exists
         if (accountRepository.existsByEmail(registerRequest.getEmail())) {
@@ -74,13 +74,23 @@ public class AccountService {
         AccountCreatedEvent event = new AccountCreatedEvent(account);
         accountEventProducer.publishAccountCreatedEvent(event);
 
+        String token = jwtService.generateToken(account);
+
+        TokenIssuedEvent tokenEvent = new TokenIssuedEvent(
+            account.getId(),
+            jwtService.extractIssuedAt(token),
+            jwtService.extractExpiration(token)
+        );
+
+        accountEventProducer.publishTokenIssuedEvent(tokenEvent);
+
         // Return the response
-        return new RegisterResponse(account, "Account created successfully");
+        return new RegisterResult(account, "Account created successfully", token);
     }
 
     // Authenticate (Login)
 
-    public AuthResponse authenticate(LoginRequest loginRequest) {
+    public AuthResult authenticate(LoginRequest loginRequest) {
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(loginRequest.getEmail());
 
@@ -123,7 +133,7 @@ public class AccountService {
         accountEventProducer.publishLoginSucceededEvent(loginEvent);
 
         // Return response
-        return new AuthResponse(account, token);
+        return new AuthResult(account, token);
     }
 
     // Read

@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.accounts.dto.RegisterResult;
 import com.example.accounts.dto.event.AccountDeletedEvent;
 import com.example.accounts.dto.event.AccountUpdatedEvent;
 import com.example.accounts.dto.request.RegisterRequest;
 import com.example.accounts.dto.response.AccountResponse;
-import com.example.accounts.dto.response.RegisterResponse;
 import com.example.accounts.model.Account;
 import com.example.accounts.repository.AccountRepository;
 import com.example.accounts.util.Role;
@@ -33,14 +33,14 @@ public class AccountAdminService {
 
     // Create
 
-    public RegisterResponse registerAdmin(RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest, Role.ADMIN);
-        return registerResponse;
+    public RegisterResult registerAdmin(RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.ADMIN);
+        return registerResult;
     }
 
-    public RegisterResponse registerStaff(RegisterRequest registerRequest) {
-        RegisterResponse registerResponse = accountService.register(registerRequest, Role.STAFF);
-        return registerResponse;
+    public RegisterResult registerStaff(RegisterRequest registerRequest) {
+        RegisterResult registerResult = accountService.register(registerRequest, Role.STAFF);
+        return registerResult;
     }
 
     // Read

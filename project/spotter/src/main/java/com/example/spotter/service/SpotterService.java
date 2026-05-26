@@ -9,6 +9,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.spotter.dto.event.SpaceUpdatedEvent;
 import com.example.spotter.dto.request.DetectionRequest;
 import com.example.spotter.dto.request.SimulationRequest;
@@ -25,9 +28,6 @@ import com.example.spotter.model.Space;
 import com.example.spotter.repository.DetectionEventRepository;
 import com.example.spotter.repository.SpaceRepository;
 import com.example.spotter.service.dto.event.SpaceCreatedEvent;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SpotterService {
